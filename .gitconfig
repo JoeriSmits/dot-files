@@ -1,0 +1,15 @@
+[user]
+    name = Loek Dieben
+    email = loek@loekup.nl
+[credential]
+    helper = osxkeychain
+[core]
+    excludesfile = /Users/loekdieben/.gitignore
+    editor = subl -w
+[merge]
+    tool = sublime
+[mergetool "sublime"]
+    cmd = subl -w $MERGED
+    trustExitCode = false
+[mergetool]
+    keepBackup = false
