@@ -1,11 +1,6 @@
 # Make subl the default editor
 export EDITOR="subl"
 
-
-# Set node environment
-export NODE_ENV=development
-
-
 # Don’t clear the screen after quitting a manual page
 export MANPAGER="less -X"
 
