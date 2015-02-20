@@ -1,3 +1,27 @@
+# functions to open an url in safari on ios simulator
+# deps:
+# - http://github.com/phonegap/ios-sim
+# - http://github.com/rockitbaby/IOSSimulatorSafariLauncher
+function ipad-safari() {
+  ios-sim launch ~/tools/ios-sim-safari-launcher/IOSSimulatorSafariLauncher.app --family ipad --args $1
+}
+
+function iphone-safari() {
+  ios-sim launch ~/tools/ios-sim-safari-launcher/IOSSimulatorSafariLauncher.app --family iphone --args $1
+}
+
+function ipad-safari-log-memory() {
+  export CA_LOG_MEMORY_USAGE=1
+  open /Applications/Utilities/Console.app
+  ipad-safari $1
+}
+
+function iphone-safari-log-memory() {
+  export CA_LOG_MEMORY_USAGE=1
+  open /Applications/Utilities/Console.app
+  iphone-safari $1
+}
+
 # kill all processes of a certain type
 function nuke {
     kill `ps aux | grep $1 | awk '{print $2}'`
