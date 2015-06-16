@@ -1,3 +1,4 @@
+default_username="loekdieben"
 #!/usr/bin/env bash
 # Sexy bash prompt by twolfson
 # https://github.com/twolfson/sexy-bash-prompt
@@ -15,81 +16,65 @@ if tput setaf 1 &> /dev/null; then
   # done
 
   # Save common color actions
-  sexy_bash_prompt_bold="$(tput bold)"
-  sexy_bash_prompt_reset="$(tput sgr0)"
+  bold="$(tput bold)"
+  reset="$(tput sgr0)"
 
   # If the terminal supports at least 256 colors, write out our 256 color based set
   if [[ "$(tput colors)" -ge 256 ]] &> /dev/null; then
-    sexy_bash_prompt_user_color="$sexy_bash_prompt_bold$(tput setaf 9)" # BOLD RED
-    sexy_bash_prompt_preposition_color="$sexy_bash_prompt_bold$(tput setaf 7)" # BOLD WHITE
-    sexy_bash_prompt_device_color="$sexy_bash_prompt_bold$(tput setaf 172)" # BOLD ORANGE
-    sexy_bash_prompt_dir_color="$sexy_bash_prompt_bold$(tput setaf 190)" # BOLD GREEN
-    sexy_bash_prompt_git_status_color="$sexy_bash_prompt_bold$(tput setaf 154)" # BOLD YELLOW
-    sexy_bash_prompt_git_progress_color="$sexy_bash_prompt_bold$(tput setaf 9)" # BOLD RED
-  else
-  # Otherwise, use colors from our set of 8
-    sexy_bash_prompt_user_color="$sexy_bash_prompt_bold$(tput setaf 4)" # BOLD BLUE
-    sexy_bash_prompt_preposition_color="$sexy_bash_prompt_bold$(tput setaf 7)" # BOLD WHITE
-    sexy_bash_prompt_device_color="$sexy_bash_prompt_bold$(tput setaf 6)" # BOLD CYAN
-    sexy_bash_prompt_dir_color="$sexy_bash_prompt_bold$(tput setaf 2)" # BOLD GREEN
-    sexy_bash_prompt_git_status_color="$sexy_bash_prompt_bold$(tput setaf 3)" # BOLD YELLOW
-    sexy_bash_prompt_git_progress_color="$sexy_bash_prompt_bold$(tput setaf 1)" # BOLD RED
+    user_color="$(tput setab 8)$(tput setaf 12)" # BOLD RED
+    user_sep="$(tput setab 12)$(tput setaf 8)" # BOLD RED
+    dir_color="$(tput setab 12)$(tput setaf 8)" # BOLD GREEN
+    dir_sep_dirty="$(tput setab 3)$(tput setaf 12)" # BOLD GREEN
+    dir_sep_clean="$(tput setab 2)$(tput setaf 12)" # BOLD GREEN
+
+    git_status_color_dirty="$(tput setab 3)$(tput setaf 8)" # BOLD YELLOW
+    git_status_color_clean="$(tput setab 2)$(tput setaf 8)" # BOLD YELLOW
+
+    git_sep_dirty="$(tput sgr0)$(tput setaf 3)" # BOLD YELLOW
+    git_sep_clean="$(tput sgr0)$(tput setaf 2)" # BOLD YELLOW
+
+    git_progress_color="$(tput setaf 9)" # BOLD RED
+
+    preposition_color="$(tput setaf 7)" # BOLD WHITE
+    device_color="$(tput setaf 172)" # BOLD ORANGE
   fi
 
-  sexy_bash_prompt_symbol_color="$sexy_bash_prompt_bold" # BOLD
-
-else
-# Otherwise, use ANSI escape sequences for coloring
-  # If you would like to customize your colors, use
-  # DEV: 30-39 lines up 0-9 from `tput`
-  # for i in $(seq 0 109); do
-  #   echo -n -e "\033[1;${i}mText$(tput sgr0) "
-  #   echo "\033[1;${i}m"
-  # done
-
-  sexy_bash_prompt_reset="\033[m"
-  sexy_bash_prompt_user_color="\033[1;34m" # BLUE
-  sexy_bash_prompt_preposition_color="\033[1;37m" # WHITE
-  sexy_bash_prompt_device_color="\033[1;36m" # CYAN
-  sexy_bash_prompt_dir_color="\033[1;32m" # GREEN
-  sexy_bash_prompt_git_status_color="\033[1;33m" # YELLOW
-  sexy_bash_prompt_git_progress_color="\033[1;31m" # RED
-  sexy_bash_prompt_symbol_color="" # NORMAL
+  symbol_color="" # BOLD
 fi
 
 # Apply any color overrides that have been set in the environment
-if [[ -n "$PROMPT_USER_COLOR" ]]; then sexy_bash_prompt_user_color="$PROMPT_USER_COLOR"; fi
-if [[ -n "$PROMPT_PREPOSITION_COLOR" ]]; then sexy_bash_prompt_preposition_color="$PROMPT_PREPOSITION_COLOR"; fi
-if [[ -n "$PROMPT_DEVICE_COLOR" ]]; then sexy_bash_prompt_device_color="$PROMPT_DEVICE_COLOR"; fi
-if [[ -n "$PROMPT_DIR_COLOR" ]]; then sexy_bash_prompt_dir_color="$PROMPT_DIR_COLOR"; fi
-if [[ -n "$PROMPT_GIT_STATUS_COLOR" ]]; then sexy_bash_prompt_git_status_color="$PROMPT_GIT_STATUS_COLOR"; fi
-if [[ -n "$PROMPT_GIT_PROGRESS_COLOR" ]]; then sexy_bash_prompt_git_progress_color="$PROMPT_GIT_PROGRESS_COLOR"; fi
-if [[ -n "$PROMPT_SYMBOL_COLOR" ]]; then sexy_bash_prompt_symbol_color="$PROMPT_SYMBOL_COLOR"; fi
+if [[ -n "$PROMPT_USER_COLOR" ]]; then user_color="$PROMPT_USER_COLOR"; fi
+if [[ -n "$PROMPT_PREPOSITION_COLOR" ]]; then preposition_color="$PROMPT_PREPOSITION_COLOR"; fi
+if [[ -n "$PROMPT_DEVICE_COLOR" ]]; then device_color="$PROMPT_DEVICE_COLOR"; fi
+if [[ -n "$PROMPT_DIR_COLOR" ]]; then dir_color="$PROMPT_DIR_COLOR"; fi
+if [[ -n "$PROMPT_GIT_STATUS_COLOR" ]]; then git_status_color="$PROMPT_GIT_STATUS_COLOR"; fi
+if [[ -n "$PROMPT_GIT_PROGRESS_COLOR" ]]; then git_progress_color="$PROMPT_GIT_PROGRESS_COLOR"; fi
+if [[ -n "$PROMPT_SYMBOL_COLOR" ]]; then symbol_color="$PROMPT_SYMBOL_COLOR"; fi
 
 # Set up symbols
-sexy_bash_prompt_synced_symbol=" ✔"
-sexy_bash_prompt_dirty_synced_symbol=" ✖"
-sexy_bash_prompt_unpushed_symbol=" △"
-sexy_bash_prompt_dirty_unpushed_symbol=" ▲"
-sexy_bash_prompt_unpulled_symbol=" ▽"
-sexy_bash_prompt_dirty_unpulled_symbol=" ▼"
-sexy_bash_prompt_unpushed_unpulled_symbol=" ⬡"
-sexy_bash_prompt_dirty_unpushed_unpulled_symbol=" ⬢"
+synced_symbol=" ✔"
+dirty_synced_symbol=" ✖"
+unpushed_symbol=" △"
+dirty_unpushed_symbol=" ▲"
+unpulled_symbol=" ▽"
+dirty_unpulled_symbol=" ▼"
+unpushed_unpulled_symbol=" ⬡"
+dirty_unpushed_unpulled_symbol=" ⬢"
 
 # Apply symbol overrides that have been set in the environment
 # DEV: Working unicode symbols can be determined via the following gist
 #   **WARNING: The following gist has 64k lines and may freeze your browser**
 #   https://gist.github.com/twolfson/9cc7968eb6ee8b9ad877
-if [[ -n "$PROMPT_SYNCED_SYMBOL" ]]; then sexy_bash_prompt_synced_symbol="$PROMPT_SYNCED_SYMBOL"; fi
-if [[ -n "$PROMPT_DIRTY_SYNCED_SYMBOL" ]]; then sexy_bash_prompt_dirty_synced_symbol="$PROMPT_DIRTY_SYNCED_SYMBOL"; fi
-if [[ -n "$PROMPT_UNPUSHED_SYMBOL" ]]; then sexy_bash_prompt_unpushed_symbol="$PROMPT_UNPUSHED_SYMBOL"; fi
-if [[ -n "$PROMPT_DIRTY_UNPUSHED_SYMBOL" ]]; then sexy_bash_prompt_dirty_unpushed_symbol="$PROMPT_DIRTY_UNPUSHED_SYMBOL"; fi
-if [[ -n "$PROMPT_UNPULLED_SYMBOL" ]]; then sexy_bash_prompt_unpulled_symbol="$PROMPT_UNPULLED_SYMBOL"; fi
-if [[ -n "$PROMPT_DIRTY_UNPULLED_SYMBOL" ]]; then sexy_bash_prompt_dirty_unpulled_symbol="$PROMPT_DIRTY_UNPULLED_SYMBOL"; fi
-if [[ -n "$PROMPT_UNPUSHED_UNPULLED_SYMBOL" ]]; then sexy_bash_prompt_unpushed_unpulled_symbol="$PROMPT_UNPUSHED_UNPULLED_SYMBOL"; fi
-if [[ -n "$PROMPT_DIRTY_UNPUSHED_UNPULLED_SYMBOL" ]]; then sexy_bash_prompt_dirty_unpushed_unpulled_symbol="$PROMPT_DIRTY_UNPUSHED_UNPULLED_SYMBOL"; fi
+if [[ -n "$PROMPT_SYNCED_SYMBOL" ]]; then synced_symbol="$PROMPT_SYNCED_SYMBOL"; fi
+if [[ -n "$PROMPT_DIRTY_SYNCED_SYMBOL" ]]; then dirty_synced_symbol="$PROMPT_DIRTY_SYNCED_SYMBOL"; fi
+if [[ -n "$PROMPT_UNPUSHED_SYMBOL" ]]; then unpushed_symbol="$PROMPT_UNPUSHED_SYMBOL"; fi
+if [[ -n "$PROMPT_DIRTY_UNPUSHED_SYMBOL" ]]; then dirty_unpushed_symbol="$PROMPT_DIRTY_UNPUSHED_SYMBOL"; fi
+if [[ -n "$PROMPT_UNPULLED_SYMBOL" ]]; then unpulled_symbol="$PROMPT_UNPULLED_SYMBOL"; fi
+if [[ -n "$PROMPT_DIRTY_UNPULLED_SYMBOL" ]]; then dirty_unpulled_symbol="$PROMPT_DIRTY_UNPULLED_SYMBOL"; fi
+if [[ -n "$PROMPT_UNPUSHED_UNPULLED_SYMBOL" ]]; then unpushed_unpulled_symbol="$PROMPT_UNPUSHED_UNPULLED_SYMBOL"; fi
+if [[ -n "$PROMPT_DIRTY_UNPUSHED_UNPULLED_SYMBOL" ]]; then dirty_unpushed_unpulled_symbol="$PROMPT_DIRTY_UNPUSHED_UNPULLED_SYMBOL"; fi
 
-function sexy_bash_prompt_get_git_branch() {
+function get_git_branch() {
   # On branches, this will return the branch name
   # On non-branches, (no branch)
   ref="$(git symbolic-ref HEAD 2> /dev/null | sed -e 's/refs\/heads\///')"
@@ -100,7 +85,7 @@ function sexy_bash_prompt_get_git_branch() {
   fi
 }
 
-function sexy_bash_prompt_get_git_progress() {
+function get_git_progress() {
   # Detect in-progress actions (e.g. merge, rebase)
   # https://github.com/git/git/blob/v1.9-rc2/wt-status.c#L1199-L1241
   git_dir="$(git rev-parse --git-dir)"
@@ -133,7 +118,7 @@ function sexy_bash_prompt_get_git_progress() {
   fi
 }
 
-sexy_bash_prompt_is_branch1_behind_branch2 () {
+is_branch1_behind_branch2 () {
   # $ git log origin/master..master -1
   # commit 4a633f715caf26f6e9495198f89bba20f3402a32
   # Author: Todd Wolfson <todd@twolfson.com>
@@ -148,14 +133,14 @@ sexy_bash_prompt_is_branch1_behind_branch2 () {
   [[ -n "$first_log" ]]
 }
 
-sexy_bash_prompt_branch_exists () {
+branch_exists () {
   # List remote branches           | # Find our branch and exit with 0 or 1 if found/not found
   git branch --remote 2> /dev/null | grep --quiet "$1"
 }
 
-sexy_bash_prompt_parse_git_ahead () {
+parse_git_ahead () {
   # Grab the local and remote branch
-  branch="$(sexy_bash_prompt_get_git_branch)"
+  branch="$(get_git_branch)"
   remote_branch="origin/$branch"
 
   # $ git log origin/master..master
@@ -167,16 +152,16 @@ sexy_bash_prompt_parse_git_ahead () {
 
   # If the remote branch is behind the local branch
   # or it has not been merged into origin (remote branch doesn't exist)
-  if (sexy_bash_prompt_is_branch1_behind_branch2 "$remote_branch" "$branch" ||
-      ! sexy_bash_prompt_branch_exists "$remote_branch"); then
+  if (is_branch1_behind_branch2 "$remote_branch" "$branch" ||
+      ! branch_exists "$remote_branch"); then
     # echo our character
     echo 1
   fi
 }
 
-sexy_bash_prompt_parse_git_behind () {
+parse_git_behind () {
   # Grab the branch
-  branch="$(sexy_bash_prompt_get_git_branch)"
+  branch="$(get_git_branch)"
   remote_branch="origin/$branch"
 
   # $ git log master..origin/master
@@ -187,52 +172,52 @@ sexy_bash_prompt_parse_git_behind () {
   #     Unsynced commit
 
   # If the local branch is behind the remote branch
-  if sexy_bash_prompt_is_branch1_behind_branch2 "$branch" "$remote_branch"; then
+  if is_branch1_behind_branch2 "$branch" "$remote_branch"; then
     # echo our character
     echo 1
   fi
 }
 
-function sexy_bash_prompt_parse_git_dirty() {
+function parse_git_dirty() {
   # If the git status has *any* changes (e.g. dirty), echo our character
   if [[ -n "$(git status --porcelain 2> /dev/null)" ]]; then
     echo 1
   fi
 }
 
-function sexy_bash_prompt_is_on_git() {
+function is_on_git() {
   git rev-parse 2> /dev/null
 }
 
-function sexy_bash_prompt_get_git_status() {
+function get_git_status() {
   # Grab the git dirty and git behind
-  dirty_branch="$(sexy_bash_prompt_parse_git_dirty)"
-  branch_ahead="$(sexy_bash_prompt_parse_git_ahead)"
-  branch_behind="$(sexy_bash_prompt_parse_git_behind)"
+  dirty_branch="$(parse_git_dirty)"
+  branch_ahead="$(parse_git_ahead)"
+  branch_behind="$(parse_git_behind)"
 
   # Iterate through all the cases and if it matches, then echo
   if [[ "$dirty_branch" == 1 && "$branch_ahead" == 1 && "$branch_behind" == 1 ]]; then
-    echo "$sexy_bash_prompt_dirty_unpushed_unpulled_symbol"
+    echo "$dirty_unpushed_unpulled_symbol"
   elif [[ "$branch_ahead" == 1 && "$branch_behind" == 1 ]]; then
-    echo "$sexy_bash_prompt_unpushed_unpulled_symbol"
+    echo "$unpushed_unpulled_symbol"
   elif [[ "$dirty_branch" == 1 && "$branch_ahead" == 1 ]]; then
-    echo "$sexy_bash_prompt_dirty_unpushed_symbol"
+    echo "$dirty_unpushed_symbol"
   elif [[ "$branch_ahead" == 1 ]]; then
-    echo "$sexy_bash_prompt_unpushed_symbol"
+    echo "$unpushed_symbol"
   elif [[ "$dirty_branch" == 1 && "$branch_behind" == 1 ]]; then
-    echo "$sexy_bash_prompt_dirty_unpulled_symbol"
+    echo "$dirty_unpulled_symbol"
   elif [[ "$branch_behind" == 1 ]]; then
-    echo "$sexy_bash_prompt_unpulled_symbol"
+    echo "$unpulled_symbol"
   elif [[ "$dirty_branch" == 1 ]]; then
-    echo "$sexy_bash_prompt_dirty_synced_symbol"
+    echo "$dirty_synced_symbol"
   else # clean
-    echo "$sexy_bash_prompt_synced_symbol"
+    echo "$synced_symbol"
   fi
 }
 
-sexy_bash_prompt_get_git_info () {
+get_git_info () {
   # Grab the branch
-  branch="$(sexy_bash_prompt_get_git_branch)"
+  branch="$(get_git_branch)"
 
   # If there are any branches
   if [[ "$branch" != "" ]]; then
@@ -240,7 +225,7 @@ sexy_bash_prompt_get_git_info () {
     output="$branch"
 
     # Add on the git status
-    output="$output$(sexy_bash_prompt_get_git_status)"
+    output="$output$(get_git_status)"
 
     # Echo our output
     echo "$output"
@@ -248,7 +233,7 @@ sexy_bash_prompt_get_git_info () {
 }
 
 # Symbol displayed at the line of every prompt
-function sexy_bash_prompt_get_prompt_symbol() {
+function get_prompt_symbol() {
   # If we are root, display `#`. Otherwise, `$`
   if [[ "$UID" == 0 ]]; then
     echo "#"
@@ -257,15 +242,71 @@ function sexy_bash_prompt_get_prompt_symbol() {
   fi
 }
 
+function status_color() {
+  dirty_branch="$(parse_git_dirty)"
+
+  if [[ "$dirty_branch" == 1 ]]; then
+    echo $git_status_color_dirty
+  else
+    echo $git_status_color_clean
+  fi
+}
+
+function dir_sep_color() {
+  dirty_branch="$(parse_git_dirty)"
+
+  if [[ "$dirty_branch" == 1 ]]; then
+    echo $dir_sep_dirty
+  else
+    echo $dir_sep_clean
+  fi
+}
+
+function git_sep_color() {
+  dirty_branch="$(parse_git_dirty)"
+
+  if [[ "$dirty_branch" == 1 ]]; then
+    echo $git_sep_dirty
+  else
+    echo $git_sep_clean
+  fi
+}
+
+# Only show username/host if not default
+function usernamehost() {
+    
+    # Highlight the user name when logged in as root.
+    if [[ "${USER}" == *"root" ]]; then
+        userStyle="$(tput setaf 124)";
+    fi;
+
+    userhost=""
+    userhost+="\[${userStyle}\]$USER "
+    userhost+="at "
+    userhost+="$HOSTNAME"
+
+    if [ $USER != "$default_username" ]; then 
+      echo $userhost ""; 
+    else
+      echo ' -';
+    fi
+}
+
 # Define the sexy-bash-prompt
-PS1="\[$sexy_bash_prompt_user_color\]\u\[$sexy_bash_prompt_reset\] \
-\[$sexy_bash_prompt_preposition_color\]at\[$sexy_bash_prompt_reset\] \
-\[$sexy_bash_prompt_device_color\]\h\[$sexy_bash_prompt_reset\] \
-\[$sexy_bash_prompt_preposition_color\]in\[$sexy_bash_prompt_reset\] \
-\[$sexy_bash_prompt_dir_color\]\w\[$sexy_bash_prompt_reset\]\
-\$( sexy_bash_prompt_is_on_git && \
-  echo -n \" \[$sexy_bash_prompt_preposition_color\]on\[$sexy_bash_prompt_reset\] \" && \
-  echo -n \"\[$sexy_bash_prompt_git_status_color\]\$(sexy_bash_prompt_get_git_info)\" && \
-  echo -n \"\[$sexy_bash_prompt_git_progress_color\]\$(sexy_bash_prompt_get_git_progress)\" && \
-  echo -n \"\[$sexy_bash_prompt_preposition_color\]\")\n\[$sexy_bash_prompt_reset\]\
-\[$sexy_bash_prompt_symbol_color\]$(sexy_bash_prompt_get_prompt_symbol) \[$sexy_bash_prompt_reset\]"
+# \[$device_color\]\h\[$reset\] \
+# \[$preposition_color\]in\[$reset\] \
+
+PS1="\[$user_color\]\[$(usernamehost) \
+\[$user_sep\]⮀ \
+\[$dir_color\]\w \
+\$( is_on_git && \
+  echo -n \"\$(dir_sep_color)\" &&\
+  echo -n \"⮀ \" && \
+  echo -n \"\$(status_color)\" &&\
+  echo -n \"⭠ \" && \
+  echo -n \"\$(get_git_info)\" && \
+  echo -n \"\[$git_progress_color\]\$(get_git_progress) \" && \
+  echo -n \"\$(git_sep_color)\" &&\
+  echo -n \"⮀ \" && \
+  echo -n \"\[$reset\]\") \n \
+\[$symbol_color\]$(get_prompt_symbol) \[$reset\]"
