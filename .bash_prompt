@@ -24,6 +24,7 @@ if tput setaf 1 &> /dev/null; then
     user_color="$(tput setab 8)$(tput setaf 12)" # BOLD RED
     user_sep="$(tput setab 12)$(tput setaf 8)" # BOLD RED
     dir_color="$(tput setab 12)$(tput setaf 8)" # BOLD GREEN
+    dir_sep="$(tput sgr0)$(tput setaf 12)" # BOLD GREEN
     dir_sep_dirty="$(tput setab 3)$(tput setaf 12)" # BOLD GREEN
     dir_sep_clean="$(tput setab 2)$(tput setaf 12)" # BOLD GREEN
 
@@ -292,6 +293,14 @@ function usernamehost() {
     fi
 }
 
+function isnormaldir(){
+  isgit="$(get_git_branch)" 
+  
+  if [ "$isgit" = "(no branch)" ]; then 
+    echo $dir_sep"⮀ "
+  fi
+}
+
 # Define the sexy-bash-prompt
 # \[$device_color\]\h\[$reset\] \
 # \[$preposition_color\]in\[$reset\] \
@@ -299,6 +308,7 @@ function usernamehost() {
 PS1="\[$user_color\]\[$(usernamehost) \
 \[$user_sep\]⮀ \
 \[$dir_color\]\w \
+\$(isnormaldir) \
 \$( is_on_git && \
   echo -n \"\$(dir_sep_color)\" &&\
   echo -n \"⮀ \" && \
@@ -308,5 +318,5 @@ PS1="\[$user_color\]\[$(usernamehost) \
   echo -n \"\[$git_progress_color\]\$(get_git_progress) \" && \
   echo -n \"\$(git_sep_color)\" &&\
   echo -n \"⮀ \" && \
-  echo -n \"\[$reset\]\") \n \
-\[$symbol_color\]$(get_prompt_symbol) \[$reset\]"
+  echo -n \"\[$reset\]\") \
+ \n \[$reset\]\[$symbol_color\]$(get_prompt_symbol) \[$reset\]"
