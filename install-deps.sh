@@ -51,7 +51,3 @@ chmod +x ~/Developer/z/z.sh
 # for the c alias (syntax highlighted cat)
 sudo easy_install Pygments
 
-
-# setup sublime shortcut
-ln -s "/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl" /usr/local/bin/subl
-

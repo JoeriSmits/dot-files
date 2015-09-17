@@ -1,3 +1,6 @@
+#Resnap port
+export PORT=3001
+
 # Make subl the default editor
 export EDITOR="subl"
 
