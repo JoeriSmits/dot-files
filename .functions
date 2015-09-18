@@ -167,3 +167,27 @@ cdf() {  # short for cdfinder
 #   fi
 # }
 
+lambdaUpdate() {
+   # Get the lambda function name
+   if [ -z "$2" ]; then
+       name=${PWD##*/} 
+   else
+       name=$2
+   fi
+
+   # Get the lambda function environment
+   if [ -z "$1" ]; then
+       env="staging" 
+   else
+       env=$1
+   fi
+
+   # Do the magic
+   echo "Zipping $name"
+   zip -qr ${name}.zip *
+   echo "Uploading to Lambda"
+   aws lambda update-function-code --function-name $env-$name --zip-file fileb://${name}.zip
+   echo "Removing zip"
+   rm ${name}.zip
+}
+
