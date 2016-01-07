@@ -40,6 +40,12 @@ shopt -s nocaseglob
 if [ -f $(brew --prefix)/share/bash-completion/bash_completion ]; then
     . $(brew --prefix)/share/bash-completion/bash_completion
 fi
+
+# Git completion for branches
+if [ -f `brew --prefix`/etc/bash_completion ]; then
+    . `brew --prefix`/etc/bash_completion
+fi
+
 # homebrew completion
 source `brew --repository`/Library/Contributions/brew_bash_completion.sh
 
