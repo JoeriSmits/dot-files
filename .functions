@@ -1,3 +1,13 @@
+function bitbucket-pull-request() {
+  newBranch=$1
+  mergeBranch=$2
+  echo $newBranch
+  echo $mergeBranch
+  username=JoeriSmits
+  password=FtWPQPzg2yp6CF
+  curl -X POST -H "Content-Type: application/json" -u ${username}:${password} https://bitbucket.org/api/2.0/repositories/resnap-account/the-keymaker/pullrequests -d '{"title": "'${newBranch}'","description": "","source": {"branch": {"name": "'${newBranch}'"},"repository": {"full_name": "resnap-account/the-keymaker"}},"destination": {"branch": {"name": "'${mergeBranch}'"}},"close_source_branch": true}'
+}
+
 # functions to open an url in safari on ios simulator
 # deps:
 # - http://github.com/phonegap/ios-sim
@@ -170,24 +180,23 @@ cdf() {  # short for cdfinder
 lambdaUpdate() {
    # Get the lambda function name
    if [ -z "$2" ]; then
-       name=${PWD##*/} 
+       name=${PWD##*/}
    else
        name=$2
    fi
 
    # Get the lambda function environment
-   if [ -z "$1" ]; then
-       env="staging" 
-   else
-       env=$1
-   fi
+   # if [ -z "$1" ]; then
+   #    env="staging"
+   # else
+   #    env=$1
+   #  fi
 
    # Do the magic
    echo "Zipping $name"
    zip -qr ${name}.zip *
    echo "Uploading to Lambda"
-   aws lambda update-function-code --function-name $env-$name --zip-file fileb://${name}.zip
+   aws lambda update-function-code --function-name $name --zip-file fileb://${name}.zip
    echo "Removing zip"
    rm ${name}.zip
 }
-

@@ -26,6 +26,8 @@ then
     alias traceroute='colourify /usr/sbin/traceroute'
 fi
 
+alias c=clear
+
 # Case-insensitive globbing (used in pathname expansion)
 shopt -s nocaseglob
 
